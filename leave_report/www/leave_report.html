@@ -1,0 +1,80 @@
+{% extends "templates/web.html" %}
+
+{% block style %}
+<style>
+{% include "leave_report/www/leave_report.css" %}
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="lr-wrap">
+  <h1>Employee Leave Summary</h1>
+  <p class="lr-sub">View and track employee leave applications</p>
+
+  <form method="get" action="/leave_report" class="lr-filters">
+    <label>Employee
+      <select name="employee">
+        <option value="">All Employees</option>
+        {% for e in employees %}
+        <option value="{{ e.name }}" {% if e.name == selected.employee %}selected{% endif %}>{{ e.employee_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Department
+      <select name="department">
+        <option value="">All Departments</option>
+        {% for d in departments %}
+        <option value="{{ d.name }}" {% if d.name == selected.department %}selected{% endif %}>{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>From <input type="date" name="from_date" value="{{ selected.from_date }}"></label>
+    <label>To <input type="date" name="to_date" value="{{ selected.to_date }}"></label>
+
+    <button type="submit">Search</button>
+    <a href="/leave_report">Reset</a>
+  </form>
+
+  <div class="lr-summary">
+    <div class="lr-card"><span>Total Leave Applications</span><strong>{{ summary.total }}</strong></div>
+    <div class="lr-card lr-approved"><span>Approved</span><strong>{{ summary.approved }}</strong></div>
+    <div class="lr-card lr-pending"><span>Pending</span><strong>{{ summary.pending }}</strong></div>
+    <div class="lr-card lr-rejected"><span>Rejected</span><strong>{{ summary.rejected }}</strong></div>
+  </div>
+
+  {% if leaves %}
+  <div class="lr-table-wrap">
+    <table class="lr-table">
+      <thead>
+        <tr>
+          <th>Employee Name</th>
+          <th>Department</th>
+          <th>Leave Type</th>
+          <th>From Date</th>
+          <th>To Date</th>
+          <th>Leave Days</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in leaves %}
+        <tr>
+          <td>{{ row.employee_name }}</td>
+          <td>{{ row.department }}</td>
+          <td>{{ row.leave_type }}</td>
+          <td>{{ row.from_date }}</td>
+          <td>{{ row.to_date }}</td>
+          <td>{{ row.total_leave_days }}</td>
+          <td><span class="lr-badge lr-badge-{{ row.status }}">{% if row.status == "Open" %}Pending{% else %}{{ row.status }}{% endif %}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="lr-empty">No leave applications found for the selected filters.</div>
+  {% endif %}
+</div>
+{% endblock %}
